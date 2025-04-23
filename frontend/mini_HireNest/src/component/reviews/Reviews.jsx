@@ -10,7 +10,7 @@ const Reviews = ({ gigId }) => {
     queryKey: ["reviews"],
     queryFn: () =>
       newRequest.get(`/reviews/${gigId}`).then((res) => {
-        return res.data;
+        return res.data || [];
       }),
   });
 
@@ -18,7 +18,7 @@ const Reviews = ({ gigId }) => {
     mutationFn: (review) => {
       return newRequest.post("/reviews", review);
     },
-    onSuccess:()=>{
+    onSuccess: () => {
       queryClient.invalidateQueries(["reviews"])
     }
   });
@@ -33,11 +33,12 @@ const Reviews = ({ gigId }) => {
   return (
     <div className="reviews">
       <h2>Reviews</h2>
-      {isLoading
-        ? "loading"
-        : error
-        ? "Something went wrong!"
-        : data.map((review) => <Review key={review._id} review={review} />)}
+      {isLoading && <p>Loading...</p>}
+      {error && <p>Something went wrong!</p>}
+      {!isLoading && !error && Array.isArray(data) && (
+        data.map((review) => <Review key={review._id} review={review} />)
+      )}
+
       <div className="add">
         <h3>Add a review</h3>
         <form action="" className="addForm" onSubmit={handleSubmit}>
